@@ -2,182 +2,274 @@ package com.example.myapplication;
 
 
 import android.content.Intent;
-
 import android.os.Bundle;
-
-import android.widget.ListView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 
 import androidx.appcompat.app.AppCompatActivity;
-
-
-import java.util.ArrayList;
 
 
 
 public class MainActivity extends AppCompatActivity {
 
 
-    ListView listArticle;
+    private EditText edtId;
+    private EditText edtName;
+    private EditText edtEmail;
+    private EditText edtTelephone;
 
 
-    ArrayList<Article> articleList;
+    private Button btnSaveSQLite;
+    private Button btnLoadSQLite;
+
+    private Button btnSaveShared;
+    private Button btnLoadShared;
 
 
-    ArticleAdapter adapter;
+
+    private DatabaseHelper databaseHelper;
+
+    private SharedPreferenceHelper sharedPreferenceHelper;
 
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
 
 
         super.onCreate(savedInstanceState);
-
 
         setContentView(R.layout.activity_main);
 
 
 
-        listArticle =
-                findViewById(
-                        R.id.listArticle
-                );
+        // ÁNH XẠ VIEW
+
+        edtId =
+                findViewById(R.id.edtId);
+
+
+        edtName =
+                findViewById(R.id.edtName);
+
+
+        edtEmail =
+                findViewById(R.id.edtEmail);
+
+
+        edtTelephone =
+                findViewById(R.id.edtTelephone);
 
 
 
-        articleList =
-                new ArrayList<>();
+        btnSaveSQLite =
+                findViewById(R.id.btnSaveSQLite);
+
+
+        btnLoadSQLite =
+                findViewById(R.id.btnLoadSQLite);
 
 
 
-        articleList.add(
-                new Article(
-                        "Trí tuệ nhân tạo trong cuộc sống",
-
-                        "AI đang được ứng dụng rộng rãi trong học tập và công việc.",
-
-                        R.drawable.ai,
-
-                        0
-                )
-        );
+        btnSaveShared =
+                findViewById(R.id.btnSaveShared);
 
 
-
-        articleList.add(
-                new Article(
-                        "Lập trình Android với Android Studio",
-
-                        "Android Studio là công cụ phát triển ứng dụng Android.",
-
-                        R.drawable.android,
-
-                        0
-                )
-        );
-
-
-
-        articleList.add(
-                new Article(
-                        "Internet và cuộc sống hiện đại",
-
-                        "Internet giúp con người kết nối thông tin nhanh chóng.",
-
-                        R.drawable.internet,
-
-                        0
-                )
-        );
-
-
-
-        articleList.add(
-                new Article(
-                        "Ứng dụng công nghệ trong giáo dục",
-
-                        "Công nghệ giúp việc học hiệu quả hơn.",
-
-                        R.drawable.education,
-
-                        0
-                )
-        );
+        btnLoadShared =
+                findViewById(R.id.btnLoadShared);
 
 
 
 
-        adapter =
-                new ArticleAdapter(
+        // KHỞI TẠO
+
+        databaseHelper =
+                new DatabaseHelper(this);
+
+
+
+        sharedPreferenceHelper =
+                new SharedPreferenceHelper(this);
+
+
+
+
+
+        // =========================
+        // SAVE SQLITE
+        // =========================
+
+        btnSaveSQLite.setOnClickListener(v -> {
+
+
+            Student student =
+                    getStudentFromInput();
+
+
+
+            boolean result =
+                    databaseHelper.saveStudent(student);
+
+
+
+            if(result){
+
+
+                Toast.makeText(
                         this,
-                        articleList
-                );
+                        "Save SQLite thành công",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+
+            }
+
+
+        });
 
 
 
-        listArticle.setAdapter(adapter);
 
 
 
+        // =========================
+        // LOAD SQLITE
+        // =========================
 
-        listArticle.setOnItemClickListener(
-                (parent, view, position, id) -> {
-
-
-                    Article article =
-                            articleList.get(position);
+        btnLoadSQLite.setOnClickListener(v -> {
 
 
-
-                    article.setViews(
-                            article.getViews()+1
+            Intent intent =
+                    new Intent(
+                            MainActivity.this,
+                            StudentListActivity.class
                     );
 
 
-
-                    adapter.notifyDataSetChanged();
-
+            startActivity(intent);
 
 
-                    Intent intent =
-                            new Intent(
-                                    MainActivity.this,
-                                    DetailActivity.class
-                            );
+        });
 
 
 
-                    intent.putExtra(
-                            "ARTICLE",
-                            article
+
+
+
+
+        // =========================
+        // SAVE SHARED
+        // =========================
+
+
+        btnSaveShared.setOnClickListener(v -> {
+
+
+
+            Student student =
+                    getStudentFromInput();
+
+
+
+            sharedPreferenceHelper.saveStudent(student);
+
+
+
+            Toast.makeText(
+                    this,
+                    "Save Shared thành công",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+
+
+        });
+
+
+
+
+
+
+
+
+        // =========================
+        // LOAD SHARED
+        // =========================
+
+
+        btnLoadShared.setOnClickListener(v -> {
+
+
+
+            Intent intent =
+                    new Intent(
+                            MainActivity.this,
+                            SharedStudentActivity.class
                     );
 
 
+            startActivity(intent);
 
-                    startActivity(intent);
 
 
-                }
+        });
+
+
+    }
+
+
+
+
+
+
+
+    // LẤY DỮ LIỆU TỪ FORM
+
+    private Student getStudentFromInput(){
+
+
+
+        String id =
+                edtId.getText()
+                        .toString()
+                        .trim();
+
+
+
+        String name =
+                edtName.getText()
+                        .toString()
+                        .trim();
+
+
+
+        String email =
+                edtEmail.getText()
+                        .toString()
+                        .trim();
+
+
+
+        String telephone =
+                edtTelephone.getText()
+                        .toString()
+                        .trim();
+
+
+
+
+        return new Student(
+                id,
+                name,
+                email,
+                telephone
         );
 
 
     }
 
 
-
-    @Override
-    protected void onResume(){
-
-        super.onResume();
-
-
-        if(adapter != null){
-
-            adapter.notifyDataSetChanged();
-
-        }
-
-    }
 
 }
